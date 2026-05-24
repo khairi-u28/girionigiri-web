@@ -4,7 +4,8 @@
 
 Admin panel uses a simple cookie-based session (no Supabase Auth required for MVP).
 
-**Login flow:**
+**Login flow:** 0. two-role system (owner vs operator, two env vars OWNER_PASSWORD + OPERATOR_PASSWORD, admin_role cookie instead of admin_token)
+
 1. Admin enters password on `/admin/login`
 2. Password is checked against `process.env.ADMIN_PASSWORD` (server action)
 3. On success: set `admin_token` cookie (httpOnly, 8-hour expiry)
@@ -12,21 +13,22 @@ Admin panel uses a simple cookie-based session (no Supabase Auth required for MV
 5. Middleware (`src/middleware.ts`) validates cookie on all `/admin/*` routes
 
 **Server Action for login (`src/app/admin/login/actions.ts`):**
+
 ```typescript
-'use server'
-import { cookies } from 'next/headers'
-import { redirect } from 'next/navigation'
+"use server";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 
 export async function loginAction(formData: FormData) {
-  const password = formData.get('password') as string
+  const password = formData.get("password") as string;
   if (password === process.env.ADMIN_PASSWORD) {
-    cookies().set('admin_token', process.env.ADMIN_TOKEN_VALUE!, {
+    cookies().set("admin_token", process.env.ADMIN_TOKEN_VALUE!, {
       httpOnly: true,
       maxAge: 60 * 60 * 8, // 8 hours
-    })
-    redirect('/admin/dashboard')
+    });
+    redirect("/admin/dashboard");
   }
-  return { error: 'Password salah' }
+  return { error: "Password salah" };
 }
 ```
 
@@ -43,6 +45,7 @@ Two tabs: **POS** and **Kitchen Summary**.
 For recording direct walk-in sales at the Cipayung physical stall.
 
 **UI Layout:**
+
 ```
 [Menu Item Buttons Grid]       [Order Cart Sidebar]
  ┌──────────┐ ┌──────────┐   ┌────────────────────┐
@@ -59,6 +62,7 @@ For recording direct walk-in sales at the Cipayung physical stall.
 ```
 
 **Behavior:**
+
 - Each menu item button is large (min h-24), shows name + price
 - Clicking adds 1 unit to cart
 - Cart shows item list with quantity controls (+/−) and remove button
@@ -71,6 +75,7 @@ For recording direct walk-in sales at the Cipayung physical stall.
 Aggregated view for morning kitchen preparation.
 
 **UI Layout:**
+
 ```
 [Date Picker]  [Refresh button]
 
@@ -98,6 +103,7 @@ Aggregated view for morning kitchen preparation.
 Full CRUD table for `inventory_items`.
 
 **UI:**
+
 - Table with columns: Name, Unit, Stock Qty, Last Updated, Actions
 - "Tambah Bahan" button opens a Dialog with the inventory form
 - Each row has Edit (pencil icon) and Delete (trash icon) buttons
@@ -113,6 +119,7 @@ Full CRUD table for `inventory_items`.
 Link menu items to inventory ingredients.
 
 **UI:**
+
 ```
 [Select Menu Item dropdown]
 
@@ -130,18 +137,20 @@ Resep untuk: Tuna Mayo Onigiri
 ```
 
 **"Tambah Bahan" (Add Ingredient):**
+
 - `IngredientCombobox` component: autocomplete searching `inventory_items` by name
 - Quantity number input
 - On submit: insert to `recipes` table
 
 **IngredientCombobox behavior:**
+
 ```typescript
 // As user types, search inventory_items:
 const { data } = await supabase
-  .from('inventory_items')
-  .select('id, name, unit')
-  .ilike('name', `%${searchTerm}%`)
-  .limit(10)
+  .from("inventory_items")
+  .select("id, name, unit")
+  .ilike("name", `%${searchTerm}%`)
+  .limit(10);
 ```
 
 ---
@@ -153,24 +162,28 @@ Form for updating `store_settings`. Uses `storeSettingsSchema` from validations.
 **Sections:**
 
 **Store Status**
+
 ```
 [Toggle Switch] Toko Buka / Tutup
 Current: BUKA ✓
 ```
 
 **Cut-off & Quota**
+
 ```
 Cut-off Time: [21:00]  (time input)
 Daily Quota:  [50]     (number input)
 ```
 
 **Marquee Text**
+
 ```
 [Text input: current marquee text]
 Preview: ────── scrolling text preview ──────
 ```
 
 **Announcement**
+
 ```
 [Toggle Switch] Tampilkan Pengumuman
 Title: [text input]
@@ -178,6 +191,7 @@ Body:  [textarea]
 ```
 
 **QRIS**
+
 ```
 QRIS URL: [URL input]
 Preview:  [Image preview if URL is valid]
@@ -192,6 +206,7 @@ Preview:  [Image preview if URL is valid]
 Below the POS/Kitchen tabs, show today's orders.
 
 **UI:**
+
 ```
 ┌─────────────────────────────────────────────────────────┐
 │ PESANAN HARI INI                                         │
@@ -204,6 +219,7 @@ Below the POS/Kitchen tabs, show today's orders.
 ```
 
 **Status update:** Clicking the arrow `[→]` button advances order to next status:
+
 ```
 received → processing → delivered
 ```
