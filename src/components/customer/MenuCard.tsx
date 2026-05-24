@@ -8,20 +8,24 @@ interface MenuCardProps {
 
 export function MenuCard({ item }: MenuCardProps) {
   return (
-    <article className="border-4 border-giri-black bg-giri-white p-4 shadow-[8px_8px_0px_0px_#2b2b2b]">
+    <article className="group flex h-full flex-col border-4 border-giri-black bg-giri-white shadow-[4px_4px_0px_0px_#2b2b2b]">
       {item.image_url ? (
-        <div className="relative mb-3 aspect-video border-4 border-giri-black">
+        <div className="relative aspect-video overflow-hidden border-b-4 border-giri-black">
           <Image src={item.image_url} alt={item.name} fill className="object-cover" />
         </div>
       ) : null}
-      <h3 className="font-heading text-2xl font-bold text-giri-black">{item.name}</h3>
-      <p className="mt-2 text-sm text-giri-black">{item.description}</p>
-      <p className="mt-3 font-heading text-xl font-bold text-giri-red">{formatRupiah(item.price)}</p>
-      {item.is_highlighted ? (
-        <span className="mt-3 inline-flex border-2 border-giri-black bg-giri-yellow px-2 py-1 text-sm font-bold uppercase text-giri-black">
-          Highlighted
-        </span>
-      ) : null}
+      <div className="flex flex-1 flex-col p-5">
+        {item.is_highlighted ? (
+          <span className="mb-3 inline-flex w-fit border-2 border-giri-black bg-giri-yellow px-2 py-1 text-xs font-black uppercase text-giri-black shadow-[2px_2px_0px_0px_#2b2b2b]">
+            Best Seller
+          </span>
+        ) : null}
+        <h3 className="font-heading text-2xl font-black uppercase leading-tight text-giri-black">{item.name}</h3>
+        <p className="mt-2 flex-1 text-sm font-medium text-giri-black">{item.description}</p>
+        <div className="mt-5 border-t-4 border-dashed border-giri-black pt-3">
+          <p className="font-heading text-2xl font-black tracking-tight text-giri-red">{formatRupiah(item.price)}</p>
+        </div>
+      </div>
     </article>
   );
 }

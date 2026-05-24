@@ -28,7 +28,7 @@ export async function processPosOrder(
       order_status: "received",
       notes: null,
       department: null,
-    })
+    } as Record<string, unknown>)
     .select()
     .single();
 
@@ -48,7 +48,7 @@ export async function processPosOrder(
     })
     .filter((item): item is NonNullable<typeof item> => item !== null);
 
-  const itemResult = await supabase.from("order_items").insert(orderItems);
+  const itemResult = await supabase.from("order_items").insert(orderItems as Record<string, unknown>[]);
   if (itemResult.error) return { error: "Gagal menyimpan item POS." };
 
   revalidatePath("/admin/dashboard");

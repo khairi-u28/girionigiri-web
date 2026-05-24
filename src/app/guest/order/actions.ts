@@ -35,7 +35,9 @@ export async function submitOrder(values: OrderFormInput): Promise<{ order: Orde
   }
 
   const selectedItems = parsed.data.items.filter((item) => item.quantity > 0);
+  if (!selectedItems.length) return { error: "Silakan pilih minimal 1 menu." };
   const total = calculateOrderTotal(selectedItems, menuItems);
+  if (total <= 0) return { error: "Total pesanan tidak valid." };
   const insertOrder = await supabase
     .from("orders")
     .insert({
@@ -49,7 +51,7 @@ export async function submitOrder(values: OrderFormInput): Promise<{ order: Orde
       payment_status: "pending",
       order_status: "received",
       total_price: total,
-    })
+    } as Record<string, unknown>)
     .select()
     .single();
   if (insertOrder.error || !insertOrder.data) return { error: "Gagal menyimpan order." };
@@ -61,13 +63,17 @@ export async function submitOrder(values: OrderFormInput): Promise<{ order: Orde
       return {
         order_id: insertOrder.data.id,
         menu_id: menu.id,
-        menu_name: menu.name,
+        menu_name: item.variant === "pedas" ? `${menu.name} (Pedas)` : item.variant === "tidak" ? `${menu.name} (Tidak Pedas)` : menu.name,
         menu_price: menu.price,
         quantity: item.quantity,
       };
     })
     .filter((item): item is NonNullable<typeof item> => item !== null);
-  const insertItems = await supabase.from("order_items").insert(itemPayload).select("*");
+  if (!itemPayload.length) {
+    await supabase.from("orders").delete().eq("id", insertOrder.data.id);
+    return { error: "Menu yang dipilih tidak ditemukan." };
+  }
+  const insertItems = await supabase.from("order_items").insert(itemPayload as Record<string, unknown>[]).select("*");
   if (insertItems.error) return { error: "Gagal menyimpan item order." };
 
   const order: OrderWithItems = {

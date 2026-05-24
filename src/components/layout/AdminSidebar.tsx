@@ -1,25 +1,45 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
+import {
+  LayoutDashboard,
+  Package,
+  ChefHat,
+  Settings,
+} from "lucide-react";
 
 const links = [
-  { href: "/admin/dashboard", label: "Dashboard" },
-  { href: "/admin/inventory", label: "Inventory" },
-  { href: "/admin/recipes", label: "Recipes" },
-  { href: "/admin/settings", label: "Settings" },
+  { href: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/admin/inventory", label: "Inventory", icon: Package },
+  { href: "/admin/recipes", label: "Resep", icon: ChefHat },
+  { href: "/admin/settings", label: "Settings", icon: Settings },
 ];
 
 export function AdminSidebar() {
+  const pathname = usePathname();
+
   return (
-    <aside className="h-fit border-4 border-giri-black bg-giri-white p-3 shadow-[8px_8px_0px_0px_#2b2b2b]">
-      <nav className="flex flex-col gap-2">
-        {links.map((link) => (
-          <Link
-            key={link.href}
-            href={link.href}
-            className="border-4 border-giri-black bg-giri-yellow px-3 py-2 font-heading font-bold text-giri-black"
-          >
-            {link.label}
-          </Link>
-        ))}
+    <aside className="hidden h-fit border-4 border-giri-black bg-giri-white p-3 shadow-brutal md:block">
+      <nav className="grid gap-2">
+        {links.map((link) => {
+          const isActive = pathname.startsWith(link.href);
+          const Icon = link.icon;
+          return (
+            <Link
+              key={link.href}
+              href={link.href}
+              className={`flex items-center gap-3 border-2 border-giri-black px-3 py-2.5 text-sm font-black uppercase tracking-wider transition-all hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none ${
+                isActive
+                  ? "bg-giri-red text-giri-white shadow-brutal-sm"
+                  : "bg-giri-yellow text-giri-black shadow-brutal-sm"
+              }`}
+            >
+              <Icon size={16} strokeWidth={3} />
+              {link.label}
+            </Link>
+          );
+        })}
       </nav>
     </aside>
   );

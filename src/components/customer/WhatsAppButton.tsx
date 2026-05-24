@@ -1,4 +1,5 @@
 import { MessageCircle } from "lucide-react";
+import { generateWhatsAppLink } from "@/lib/whatsapp";
 
 interface WhatsAppButtonProps {
   phoneNumber: string;
@@ -6,16 +7,17 @@ interface WhatsAppButtonProps {
 }
 
 export function WhatsAppButton({ phoneNumber, message }: WhatsAppButtonProps) {
-  const href = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+  const href = generateWhatsAppLink(phoneNumber, message);
+
   return (
     <a
       href={href}
       target="_blank"
-      rel="noreferrer"
-      className="mt-4 inline-flex items-center gap-2 border-4 border-giri-black bg-[#25D366] px-4 py-3 font-heading font-bold text-giri-white shadow-[4px_4px_0px_0px_#2b2b2b] transition-transform duration-100 hover:-translate-x-1 hover:-translate-y-1"
+      rel="noopener noreferrer"
+      className="inline-flex w-full items-center justify-center gap-3 border-4 border-giri-black bg-[#25D366] px-6 py-4 text-lg font-black uppercase text-giri-white shadow-brutal transition-all hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-brutal-sm"
     >
-      <MessageCircle className="h-5 w-5" />
-      Kirim ke WhatsApp
+      <MessageCircle className="h-6 w-6" />
+      Konfirmasi via WhatsApp
     </a>
   );
 }

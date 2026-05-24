@@ -8,9 +8,19 @@ export default async function RecipesPage() {
   ]);
 
   return (
-    <section className="space-y-4">
-      <h1 className="font-heading text-4xl font-black">Recipe Management</h1>
-      <RecipeManager menuItems={menuResult.data ?? []} inventoryItems={inventoryResult.data ?? []} />
+    <section className="space-y-6">
+      <div className="border-b-4 border-giri-black pb-4">
+        <h1 className="text-3xl font-black uppercase tracking-tight text-giri-black md:text-4xl">
+          Recipe Management
+        </h1>
+        <p className="mt-1 text-sm font-bold uppercase tracking-widest text-gray-500">
+          Komposisi bahan per menu item
+        </p>
+      </div>
+      <RecipeManager
+        menuItems={menuResult.data ?? []}
+        inventoryItems={inventoryResult.data ?? []}
+      />
     </section>
   );
 }

@@ -7,7 +7,7 @@ import { supabase } from "@/lib/supabase";
 export async function advanceOrderStatus(orderId: string, status: OrderStatus): Promise<OrderStatus | null> {
   const { data, error } = await supabase
     .from("orders")
-    .update({ order_status: status })
+    .update({ order_status: status } as Record<string, unknown>)
     .eq("id", orderId)
     .select("order_status")
     .single();

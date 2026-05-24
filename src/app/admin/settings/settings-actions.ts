@@ -11,7 +11,7 @@ export async function saveStoreSettings(settings: StoreSettings) {
 
   const { error } = await supabase
     .from("store_settings")
-    .upsert({ id: 1, ...parsed.data }, { onConflict: "id" });
+    .upsert({ ...parsed.data, id: 1 }, { onConflict: "id" });
   if (error) return { ok: false, error: "Gagal menyimpan settings." };
 
   revalidatePath("/admin/settings");

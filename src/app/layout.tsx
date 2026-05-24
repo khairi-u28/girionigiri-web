@@ -2,8 +2,9 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Giri-giri Onigiri",
-  description: "Pre-order onigiri segar setiap hari.",
+  title: "PO Giri-giri Onigiri | Sarapan Sat-Set Rasa Lokal",
+  description:
+    "Pre-order onigiri fusion dengan isian kearifan lokal. Sarapan sat-set buat kamu yang sibuk ngejar deadline pagi.",
 };
 
 export default function RootLayout({
@@ -12,8 +13,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="id">
-      <body>{children}</body>
+    <html lang="id" className="scroll-smooth">
+      <body className="font-heading antialiased">{children}</body>
     </html>
   );
 }

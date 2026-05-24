@@ -16,6 +16,7 @@ export const orderFormSchema = z
         z.object({
           menu_id: z.string().uuid(),
           quantity: z.number().min(0).max(50),
+          variant: z.enum(["pedas", "tidak", "none"]).optional(),
         }),
       )
       .min(1, "Pilih minimal 1 menu"),
@@ -24,8 +25,15 @@ export const orderFormSchema = z
     if (data.delivery_type === "auto2000" && !data.department) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: "Departemen wajib diisi untuk pengiriman Auto2000",
+        message: "Nama & Divisi wajib diisi untuk pengiriman Kantor",
         path: ["department"],
+      });
+    }
+    if (data.delivery_type === "external" && !data.notes?.trim()) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Alamat lengkap wajib diisi untuk pengiriman Cipayung",
+        path: ["notes"],
       });
     }
     const itemCount = data.items.reduce((sum, item) => sum + item.quantity, 0);

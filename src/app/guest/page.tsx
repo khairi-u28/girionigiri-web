@@ -1,6 +1,6 @@
 import { AnnouncementBanner } from "@/components/customer/AnnouncementBanner";
 import { HeroSection } from "@/components/customer/HeroSection";
-import { MarqueeBanner } from "@/components/customer/MarqueeBanner";
+
 import { MenuGrid } from "@/components/customer/MenuGrid";
 import { supabase } from "@/lib/supabase";
 
@@ -11,15 +11,14 @@ export default async function GuestLandingPage() {
   ]);
 
   return (
-    <>
+    <div className="mb-24 w-full space-y-16 lg:space-y-24">
       <AnnouncementBanner
         title={settings?.announcement_title ?? ""}
         body={settings?.announcement_body ?? ""}
         active={settings?.announcement_active ?? false}
       />
-      <MarqueeBanner text={settings?.marquee_text ?? ""} />
       <HeroSection />
       <MenuGrid items={menuItems ?? []} />
-    </>
+    </div>
   );
 }

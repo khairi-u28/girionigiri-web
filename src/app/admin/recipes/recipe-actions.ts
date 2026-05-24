@@ -23,7 +23,7 @@ export async function addRecipeItem(menuId: string, inventoryId: string, qtyNeed
     menu_id: menuId,
     inventory_id: inventoryId,
     qty_needed: qtyNeeded,
-  });
+  } as Record<string, unknown>);
   if (error) return { ok: false, error: "Gagal menambah resep." };
   revalidatePath("/admin/recipes");
   return { ok: true };

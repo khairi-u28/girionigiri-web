@@ -11,7 +11,7 @@ export async function upsertInventoryItem(payload: { id: string | null; name: st
   if (payload.id) {
     const { error } = await supabase
       .from("inventory_items")
-      .update({ name: payload.name, unit: payload.unit || null, stock_qty: payload.stock_qty })
+      .update({ name: payload.name, unit: payload.unit || null, stock_qty: payload.stock_qty } as Record<string, unknown>)
       .eq("id", payload.id);
     if (error) return { ok: false, error: "Gagal memperbarui inventory." };
   } else {
@@ -19,7 +19,7 @@ export async function upsertInventoryItem(payload: { id: string | null; name: st
       name: payload.name,
       unit: payload.unit || null,
       stock_qty: payload.stock_qty,
-    });
+    } as Record<string, unknown>);
     if (error) return { ok: false, error: "Gagal menambah inventory." };
   }
   revalidatePath("/admin/inventory");

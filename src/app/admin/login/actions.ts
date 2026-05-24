@@ -3,7 +3,7 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
-export async function loginAction(formData: FormData) {
+export async function loginAction(prevState: { error?: string }, formData: FormData) {
   const password = String(formData.get("password") ?? "");
   if (password === process.env.ADMIN_PASSWORD) {
     (await cookies()).set("admin_token", process.env.ADMIN_TOKEN_VALUE ?? "admin-auth", {
