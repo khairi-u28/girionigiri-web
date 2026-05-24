@@ -1,44 +1,69 @@
-import { addDays, format, isAfter, set, startOfDay } from "date-fns";
+import { clsx, type ClassValue } from "clsx";
+import { twMerge } from "tailwind-merge";
+import { addDays, parseISO, format } from "date-fns";
 import { id as localeId } from "date-fns/locale";
 import { toZonedTime } from "date-fns-tz";
 import type { MenuItem } from "@/types";
-import { TIMEZONE } from "./constants";
+
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
+}
+
+// ── Currency ────────────────────────────────────────────────────────────────
 
 export function formatRupiah(amount: number): string {
   return new Intl.NumberFormat("id-ID", {
     style: "currency",
     currency: "IDR",
     minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
   }).format(amount);
 }
 
-export function getNowWIB(): Date {
-  return toZonedTime(new Date(), TIMEZONE);
-}
+// ── Date helpers ─────────────────────────────────────────────────────────────
 
+const WIB = "Asia/Jakarta";
+
+/**
+ * Returns the minimum delivery date based on the store's cut-off time.
+ *
+ * @param cutOffTime - "HH:MM" string from store settings
+ */
 export function getMinDeliveryDate(cutOffTime: string): Date {
-  const now = getNowWIB();
+  const nowWIB = toZonedTime(new Date(), WIB);
+
   const [hours, minutes] = cutOffTime.split(":").map(Number);
-  const cutoff = set(now, { hours, minutes, seconds: 0, milliseconds: 0 });
-  return addDays(now, isAfter(now, cutoff) ? 2 : 1);
+  const cutoff = new Date(nowWIB);
+  cutoff.setHours(hours, minutes, 0, 0);
+
+  // If we're past cutoff today, minimum is day-after-tomorrow; otherwise tomorrow
+  const minDate = nowWIB > cutoff ? addDays(nowWIB, 2) : addDays(nowWIB, 1);
+  minDate.setHours(0, 0, 0, 0);
+  return minDate;
 }
 
-export function isDateDisabled(date: Date, minDate: Date): boolean {
-  return startOfDay(date) < startOfDay(minDate);
+/**
+ * Formats an ISO date string as a long Indonesian date.
+ * e.g. "Senin, 27 Januari 2025"
+ */
+export function formatDateIndonesian(dateStr: string): string {
+  return format(parseISO(dateStr), "EEEE, dd MMMM yyyy", { locale: localeId });
 }
 
-export function formatDateIndonesian(date: Date | string): string {
-  const value = typeof date === "string" ? new Date(date) : date;
-  return format(value, "EEEE, dd MMMM yyyy", { locale: localeId });
+// ── Order total ──────────────────────────────────────────────────────────────
+
+interface OrderFormItem {
+  menu_id: string;
+  quantity: number;
+  variant?: string;
 }
 
 export function calculateOrderTotal(
-  items: { menu_id: string; quantity: number }[],
+  items: OrderFormItem[],
   menuItems: MenuItem[],
 ): number {
   return items.reduce((sum, item) => {
-    const menu = menuItems.find((menuItem) => menuItem.id === item.menu_id);
-    if (!menu) return sum;
-    return sum + menu.price * item.quantity;
+    const menu = menuItems.find((m) => m.id === item.menu_id);
+    return sum + (menu?.price ?? 0) * item.quantity;
   }, 0);
 }

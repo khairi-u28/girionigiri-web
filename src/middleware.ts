@@ -1,16 +1,37 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-export function middleware(request: NextRequest) {
-  const adminToken = request.cookies.get("admin_token");
-  const isAdminRoute = request.nextUrl.pathname.startsWith("/admin");
-  const isLoginPage = request.nextUrl.pathname === "/admin/login";
+const OPERATOR_BLOCKED = [
+  "/admin/inventory",
+  "/admin/recipes",
+  "/admin/settings",
+  "/admin/menu",
+];
 
-  if (isAdminRoute && !isLoginPage && !adminToken) {
+export function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+  const isLoginPage = pathname === "/admin/login";
+  const role = request.cookies.get("admin_role")?.value;
+
+  // Unauthenticated → redirect to login
+  if (!isLoginPage && !role) {
     return NextResponse.redirect(new URL("/admin/login", request.url));
   }
 
-  return NextResponse.next();
+  // Operator trying to access restricted pages → redirect to dashboard
+  if (
+    role === "operator" &&
+    OPERATOR_BLOCKED.some((path) => pathname.startsWith(path))
+  ) {
+    return NextResponse.redirect(new URL("/admin/dashboard", request.url));
+  }
+
+  // Pass role as header so server components / layouts can read it
+  const response = NextResponse.next();
+  if (role) {
+    response.headers.set("x-admin-role", role);
+  }
+  return response;
 }
 
 export const config = {

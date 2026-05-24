@@ -2,19 +2,28 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, X } from "lucide-react";
+import { Menu, X, LogOut } from "lucide-react";
 import { useState } from "react";
 
-export function AdminHeader() {
+const ownerLinks = [
+  { href: "/admin/dashboard", label: "Dashboard" },
+  { href: "/admin/inventory", label: "Inventory" },
+  { href: "/admin/recipes", label: "Resep" },
+  { href: "/admin/settings", label: "Settings" },
+  { href: "/admin/menu", label: "Menu" },
+];
+
+const operatorLinks = [{ href: "/admin/dashboard", label: "Dashboard" }];
+
+interface AdminHeaderProps {
+  role: "owner" | "operator";
+  logoutAction: () => Promise<void>;
+}
+
+export function AdminHeader({ role, logoutAction }: AdminHeaderProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const pathname = usePathname();
-
-  const links = [
-    { href: "/admin/dashboard", label: "Dashboard" },
-    { href: "/admin/inventory", label: "Inventory" },
-    { href: "/admin/recipes", label: "Resep" },
-    { href: "/admin/settings", label: "Settings" },
-  ];
+  const links = role === "owner" ? ownerLinks : operatorLinks;
 
   return (
     <header className="border-b-4 border-giri-black bg-giri-red">
@@ -51,10 +60,21 @@ export function AdminHeader() {
           })}
         </nav>
 
-        {/* Badge */}
-        <span className="hidden border-2 border-giri-black bg-giri-white px-3 py-1 text-xs font-black uppercase tracking-wider text-giri-black lg:inline-block">
-          Giri-giri Onigiri
-        </span>
+        {/* Right side: role badge + logout */}
+        <div className="hidden items-center gap-2 lg:flex">
+          <span className="border-2 border-giri-black bg-giri-white px-3 py-1 text-xs font-black uppercase tracking-wider text-giri-black">
+            {role === "owner" ? "Owner" : "Operator"}
+          </span>
+          <form action={logoutAction}>
+            <button
+              type="submit"
+              className="flex items-center gap-1.5 border-2 border-giri-black bg-giri-yellow px-3 py-1 text-xs font-black uppercase tracking-wider text-giri-black transition-all hover:translate-y-0.5 hover:shadow-none shadow-brutal-sm"
+            >
+              <LogOut size={13} strokeWidth={3} />
+              Logout
+            </button>
+          </form>
+        </div>
 
         {/* Mobile menu button */}
         <button
@@ -86,6 +106,16 @@ export function AdminHeader() {
                 </Link>
               );
             })}
+            {/* Mobile logout */}
+            <form action={logoutAction} className="col-span-2">
+              <button
+                type="submit"
+                className="flex w-full items-center justify-center gap-2 border-2 border-giri-black bg-giri-yellow px-3 py-2 text-sm font-black uppercase text-giri-black"
+              >
+                <LogOut size={14} strokeWidth={3} />
+                Logout
+              </button>
+            </form>
           </div>
         </nav>
       )}
