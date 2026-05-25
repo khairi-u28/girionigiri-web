@@ -56,6 +56,25 @@ export const inventoryItemSchema = z.object({
   stock_qty: z.number().min(0, "Stok tidak boleh negatif"),
 });
 
+export const menuItemSchema = z.object({
+  id: z.string().uuid().nullable().optional(),
+  name: z.string().trim().min(1, "Nama menu wajib diisi"),
+  description: z.string().trim().max(500).optional().nullable(),
+  price: z.coerce.number().min(1, "Harga harus lebih dari 0"),
+  category: z.enum(["onigiri", "side_dish", "drink"], {
+    error: "Kategori wajib dipilih",
+  }),
+  image_url: z
+    .string()
+    .trim()
+    .url("URL gambar tidak valid")
+    .or(z.literal(""))
+    .optional()
+    .nullable(),
+  is_active: z.boolean(),
+  is_highlighted: z.boolean(),
+});
+
 export const recipeItemSchema = z.object({
   menu_id: z.string().uuid("Menu tidak valid"),
   inventory_id: z.string().uuid("Bahan tidak valid"),

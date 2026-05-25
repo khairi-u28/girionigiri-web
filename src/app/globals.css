@@ -272,3 +272,21 @@ input[type="number"] {
     @apply font-sans;
   }
 }
+
+/* ── Receipt Print ── */
+@media print {
+  body * { visibility: hidden; }
+  .receipt-printable, .receipt-printable * { visibility: visible; }
+  .receipt-printable {
+    display: block !important;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 72mm;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 10px;
+    line-height: 1.4;
+    color: #000;
+  }
+  .no-print { display: none !important; }
+}

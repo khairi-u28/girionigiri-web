@@ -14,8 +14,13 @@ const PAYMENT_LABELS: Record<string, string> = {
   cod: "COD (Bayar di tempat)",
 };
 
-export function formatWhatsAppMessage(order: OrderWithItems, baseUrl: string): string {
-  const trackingUrl = `${baseUrl}/guest/order-history/${order.id}`;
+export function formatWhatsAppMessage(
+  order: OrderWithItems,
+  baseUrl?: string,
+): string {
+  const resolvedBaseUrl =
+    baseUrl ?? process.env.NEXT_PUBLIC_BASE_URL ?? "http://localhost:3000";
+  const trackingUrl = `${resolvedBaseUrl}/guest/order-history/${order.id}`;
   const deliveryDateFormatted = format(new Date(order.delivery_date), "EEEE, dd MMMM yyyy", {
     locale: localeId,
   });

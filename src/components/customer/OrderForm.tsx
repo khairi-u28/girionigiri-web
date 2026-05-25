@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, useWatch } from "react-hook-form";
 import type { MenuItem, OrderWithItems, StoreSettings } from "@/types";
-import { DEPARTMENTS, DELIVERY_TYPES, WHATSAPP_NUMBER } from "@/lib/constants";
+import { DEPARTMENTS, DELIVERY_TYPES } from "@/lib/constants";
 import {
   calculateOrderTotal,
   formatDateIndonesian,
@@ -12,10 +12,9 @@ import {
   getMinDeliveryDate,
 } from "@/lib/utils";
 import { orderFormSchema, type OrderFormInput } from "@/lib/validations";
-import { formatWhatsAppMessage } from "@/lib/whatsapp";
+import { formatWhatsAppMessage, generateWhatsAppLink } from "@/lib/whatsapp";
 import { submitOrder } from "@/app/guest/order/actions";
 import { PaymentInstructions } from "./PaymentInstructions";
-import { WhatsAppButton } from "./WhatsAppButton";
 
 interface OrderFormProps {
   menuItems: MenuItem[];
@@ -125,10 +124,12 @@ export function OrderForm({ menuItems, settings }: OrderFormProps) {
 
   /* ── Post-submit success state ── */
   if (submittedOrder) {
+    const customerPhoneNumber = submittedOrder.whatsapp_number;
     const message = formatWhatsAppMessage(
       submittedOrder,
       window.location.origin
     );
+    const waHref = generateWhatsAppLink(customerPhoneNumber, message);
     return (
       <section className="space-y-6">
         <div className="border-4 border-giri-black bg-giri-yellow p-6 text-center shadow-brutal">
@@ -144,7 +145,14 @@ export function OrderForm({ menuItems, settings }: OrderFormProps) {
           qrisUrl={settings.qris_url}
           orderId={submittedOrder.id}
         />
-        <WhatsAppButton phoneNumber={WHATSAPP_NUMBER} message={message} />
+        <a
+          href={waHref}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex w-full items-center justify-center gap-3 border-4 border-giri-black bg-[#25D366] px-6 py-4 text-lg font-black uppercase text-giri-white shadow-brutal transition-all hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-brutal-sm"
+        >
+          📩 Kirim Ringkasan ke WhatsApp Saya
+        </a>
       </section>
     );
   }

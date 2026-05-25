@@ -40,8 +40,8 @@ girionigiri-web/
 │   │       │   ├── status-actions.ts  ← advanceOrderStatus, markPaid
 │   │       │   └── summary-actions.ts ← getKitchenSummary
 │   │       ├── menu/
-│   │       │   ├── page.tsx           ← menu item CRUD
-│   │       │   └── menu-actions.ts
+│   │       │   ├── page.tsx           ← menu item CRUD (server page)
+│   │       │   └── menu-actions.ts     ← CRUD actions
 │   │       ├── inventory/
 │   │       │   ├── page.tsx           ← inventory CRUD
 │   │       │   └── inventory-actions.ts

@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 
 interface PaymentInstructionsProps {
@@ -21,10 +22,19 @@ export function PaymentInstructions({
         <div className="space-y-4">
           {qrisUrl ? (
             <div className="mx-auto w-fit border-4 border-giri-black bg-giri-white p-3 shadow-brutal-sm">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={qrisUrl} alt="QRIS Code" className="h-48 w-48 object-contain" />
+              <Image
+                src={qrisUrl}
+                alt="QRIS Code"
+                width={240}
+                height={240}
+                className="object-contain"
+              />
             </div>
-          ) : null}
+          ) : (
+            <p className="text-sm font-bold text-gray-500">
+              QRIS belum dikonfigurasi. Hubungi admin.
+            </p>
+          )}
           <p className="font-medium text-gray-600">
             Scan QR di atas menggunakan aplikasi e-wallet kamu, lalu kirim bukti transfer via WhatsApp.
           </p>

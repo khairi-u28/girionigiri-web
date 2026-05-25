@@ -1,10 +1,11 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import type { MenuItem } from "@/types";
+import type { MenuItem, OrderWithItems } from "@/types";
 import { formatRupiah } from "@/lib/utils";
 import { processPosOrder } from "@/app/admin/dashboard/pos-actions";
 import { ShoppingCart, Trash2 } from "lucide-react";
+import { ReceiptPrint } from "@/components/customer/ReceiptPrint";
 
 interface POSInterfaceProps {
   menuItems: MenuItem[];
@@ -15,6 +16,7 @@ export function POSInterface({ menuItems }: POSInterfaceProps) {
   const [paymentMethod, setPaymentMethod] = useState<"qris" | "cod">("qris");
   const [message, setMessage] = useState<string>("");
   const [messageType, setMessageType] = useState<"success" | "error">("success");
+  const [completedOrder, setCompletedOrder] = useState<OrderWithItems | null>(null);
 
   const cartItems = useMemo(
     () =>
@@ -29,22 +31,63 @@ export function POSInterface({ menuItems }: POSInterfaceProps) {
     0
   );
 
+  function buildCompletedOrder(): OrderWithItems {
+    const now = new Date();
+    const id = `POS-${now.getTime()}`;
+
+    return {
+      id,
+      customer_name: "Walk-in Customer",
+      whatsapp_number: "000000000000",
+      delivery_type: "cipayung_pickup",
+      department: null,
+      delivery_date: now.toISOString().slice(0, 10),
+      total_price: total,
+      payment_method: paymentMethod,
+      payment_status: paymentMethod === "qris" ? "paid" : "pending",
+      order_status: "received",
+      notes: null,
+      created_at: now.toISOString(),
+      order_items: cartItems.map((item) => ({
+        id: `${id}-${item.id}`,
+        order_id: id,
+        menu_id: item.id,
+        menu_name: item.name,
+        menu_price: item.price,
+        quantity: item.quantity,
+      })),
+    };
+  }
+
+  function resetSession() {
+    setCart({});
+    setCompletedOrder(null);
+    setMessage("");
+    setMessageType("success");
+  }
+
   async function submit() {
     if (cartItems.length === 0) {
       setMessage("Tambahkan minimal 1 item ke keranjang.");
       setMessageType("error");
       return;
     }
+
     const items = cartItems.map((item) => ({
       menu_id: item.id,
       quantity: item.quantity,
     }));
+
     const result = await processPosOrder(items, paymentMethod);
     if ("error" in result) {
       setMessage(result.error);
       setMessageType("error");
+      setCompletedOrder(null);
       return;
     }
+
+    const nextOrder = buildCompletedOrder();
+    setCompletedOrder(nextOrder);
     setMessage("✅ Pesanan POS berhasil diproses!");
     setMessageType("success");
     setCart({});
@@ -203,8 +246,36 @@ export function POSInterface({ menuItems }: POSInterfaceProps) {
           Proses Pesanan
         </button>
 
+        {completedOrder && (
+          <div className="mt-4 space-y-3">
+            <div className="border-4 border-giri-black bg-giri-yellow p-3">
+              <p className="text-sm font-black uppercase">✅ Pesanan POS berhasil diproses!</p>
+              <p className="mt-2 text-sm font-bold">Order: #{completedOrder.id.slice(-8).toUpperCase()}</p>
+              <p className="text-sm font-bold">Total: {formatRupiah(completedOrder.total_price)}</p>
+              <p className="text-sm font-bold">Pembayaran: {completedOrder.payment_method.toUpperCase()}</p>
+            </div>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => window.print()}
+                className="no-print flex-1 border-4 border-giri-black bg-giri-yellow px-3 py-2 text-sm font-black uppercase shadow-brutal-sm"
+              >
+                🖨️ Cetak Struk
+              </button>
+              <button
+                type="button"
+                onClick={resetSession}
+                className="no-print flex-1 border-4 border-giri-black bg-giri-white px-3 py-2 text-sm font-black uppercase shadow-brutal-sm"
+              >
+                Transaksi Baru
+              </button>
+            </div>
+            <ReceiptPrint order={completedOrder} />
+          </div>
+        )}
+
         {/* Feedback */}
-        {message && (
+        {message && !completedOrder && (
           <div
             className={`mt-3 border-4 p-3 text-sm font-bold ${
               messageType === "success"
